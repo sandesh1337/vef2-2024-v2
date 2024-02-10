@@ -90,4 +90,7 @@ app.use(handlerError);
 
 app.listen(port, () => {
   console.info(`🚀 Server running at http://localhost:${port}/`);
+  process.on('SIGINT', () => process.exit(1));
 });
+
+

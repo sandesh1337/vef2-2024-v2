@@ -21,6 +21,7 @@ module.exports = {
       },
     ],
     'import/extensions': 0,
+    'camelcase': 0,
     'max-len': [
       'warn',
       {

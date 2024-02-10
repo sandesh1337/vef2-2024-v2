@@ -72,9 +72,8 @@ export async function getGames() {
       };
       games.push(game);
     }
-
-    return games;
   }
+  return games;
 }
 
 export function insertGame(home_name, home_score, away_name, away_score) {
