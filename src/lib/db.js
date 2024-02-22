@@ -1,8 +1,12 @@
 import pg from 'pg';
+import { readFile } from 'fs/promises';
 import { environment } from './environment.js';
 import { logger } from './logger.js';
 
 const env = environment(process.env, logger);
+
+const SCHEMA_FILE = './src/sql/schema.sql';
+const DROP_SCHEMA_FILE = './src/sql/drop.sql';
 
 if (!env?.connectionString) {
   process.exit(-1);
@@ -72,8 +76,21 @@ export async function getGames() {
       };
       games.push(game);
     }
+
   }
   return games;
+}
+
+export async function createSchema(schemaFile = SCHEMA_FILE) {
+  const data = await readFile(schemaFile);
+
+  return query(data.toString('utf-8'));
+}
+
+export async function dropSchema(dropFile = DROP_SCHEMA_FILE) {
+  const data = await readFile(dropFile);
+
+  return query(data.toString('utf-8'));
 }
 
 export function insertGame(home_name, home_score, away_name, away_score) {
@@ -85,4 +102,30 @@ export function insertGame(home_name, home_score, away_name, away_score) {
 
 export async function end() {
   await pool.end();
+}
+
+
+export async function getUsers() {
+  const q = `
+    SELECT *
+    FROM
+      users
+  `;
+
+  const result = await query(q);
+
+  const users = [];
+  if (result && (result.rows?.length ?? 0) > 0) {
+    for (const row of result.rows) {
+      const user = {
+        id: row.id,
+        username: row.username,
+        name: row.name,
+        admin: row.admin,
+        password: row.password,
+      };
+      users.push(user);
+    }
+  }
+  return users;
 }

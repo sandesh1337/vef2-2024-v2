@@ -5,34 +5,35 @@
  * hér, ásamt því að passa upp á að lykilorð séu lögleg.
  */
 
+
 import bcrypt from 'bcrypt';
+import {getUsers} from "./db.js";
 
-const records = [
-  {
-    id: 1,
-    username: 'admin',
-    name: 'Hr. admin',
 
-    // 123
-    password: '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii',
-    admin: true,
-  },
-  {
-    id: 2,
-    username: 'oli',
-    name: 'Óli',
+import logout from 'passport';
 
-    // 123
-    password: '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii',
-    admin: false,
-  },
-];
 
-export async function comparePasswords(password, user) {
-  const ok = await bcrypt.compare(password, user.password);
+export async function logoutUser(req) {
+  return new Promise((resolve, reject) => {
+    // Using Passport.js logout function to clear the login session
+    req.logout((err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
 
-  if (ok) {
-    return user;
+const records = await getUsers();
+//console.log(records);
+
+export async function comparePasswords(password, hash) {
+  try {
+    return await bcrypt.compare(password, hash);
+  } catch (e) {
+    console.error('Gat ekki borið saman lykilorð', e);
   }
 
   return false;
@@ -44,7 +45,15 @@ export async function findByUsername(username) {
   const found = records.find((u) => u.username === username);
 
   if (found) {
-    return found;
+    console.log("Found User:", found);  // Log the entire user object
+
+    const { password, ...userWithoutPassword } = found;
+
+    if (password) {
+      return { password, ...userWithoutPassword };
+    } else {
+      console.error("User password is undefined");
+    }
   }
 
   return null;

@@ -10,7 +10,7 @@ import { logger } from './lib/logger.js';
 import { adminRouter } from './routes/admin-routes.js';
 import { indexRouter } from './routes/index-routes.js';
 
-import { comparePasswords, findById, findByUsername } from './lib/users.js';
+import { comparePasswords, findById, findByUsername, logoutUser } from './lib/users.js';  // Import logoutUser function
 
 const env = environment(process.env, logger);
 
@@ -26,7 +26,7 @@ app.set('views', join(path, '../views'));
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
-// Passport mun verða notað með session
+// Passport will be used with sessions
 const sessionOptions = {
   secret: sessionSecret,
   resave: false,
@@ -34,41 +34,39 @@ const sessionOptions = {
 };
 app.use(session(sessionOptions));
 
-/**
- * Athugar hvort username og password sé til í notandakerfi.
- * Callback tekur við villu sem fyrsta argument, annað argument er
- * - `false` ef notandi ekki til eða lykilorð vitlaust
- * - Notandahlutur ef rétt
- *
- * @param {string} username Notandanafn til að athuga
- * @param {string} password Lykilorð til að athuga
- * @param {function} done Fall sem kallað er í með niðurstöðu
- */
+// Strategy for checking username and password
 async function strat(username, password, done) {
   try {
     const user = await findByUsername(username);
 
     if (!user) {
-      return done(null, false);
+      return done(null, false, { message: 'Incorrect username.' });
     }
 
-    // Verður annað hvort notanda hlutur ef lykilorð rétt, eða false
-    const result = await comparePasswords(password, user);
-    return done(null, result);
+    const hashedPassword = user.password;
+
+    const result = await comparePasswords(password, hashedPassword);
+
+    if (result) {
+      console.log("Authentication successful");
+      return done(null, user);
+    } else {
+      return done(null, false);
+    }
   } catch (err) {
     console.error(err);
-    return done(err);
+    return done(err, { message: 'Error authenticating user.' });
   }
 }
 
-// Notum local strategy með „strattinu“ okkar til að leita að notanda
+// Use local strategy with our authentication strategy
 passport.use(new Strategy(strat));
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-// Sækir notanda út frá id
+// Fetch user based on ID
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await findById(id);
@@ -78,19 +76,53 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Látum express nota passport með session
+// Let express use passport with sessions
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Logout route
+app.post('/logout', async (req, res) => {
+  try {
+    await logoutUser(req);
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error logging out:', err);
+    res.redirect('/'); // Redirecting to home page even if logout fails
+  }
+});
+
+// Set up your other routes and middleware here
 app.use('/', indexRouter);
 app.use('/', adminRouter);
 app.use(express.static(join(path, '../public')));
 app.use(handler404);
 app.use(handlerError);
 
+app.delete('/delete-game/:gameId', async (req, res) => {
+  const { gameId } = req.params;
+  // Add your logic to delete the game from the database
+  // For example: await deleteGameById(gameId);
+  console.log('Deleting game with ID:', gameId);
+  res.json({ success: true });
+});
+
+app.get('/edit-game/:gameId', async (req, res) => {
+  const { gameId } = req.params;
+  // Fetch the game details to populate the form
+  // For example: const gameDetails = await fetchGameById(gameId);
+  console.log('Editing game with ID:', gameId);
+  res.render('editGame', { gameDetails }); // Assuming you have an `editGame.ejs` template
+});
+
+app.post('/update-game/:gameId', async (req, res) => {
+  const { gameId } = req.params;
+  // Update game details in the database
+  // For example: await updateGameById(gameId, req.body);
+  console.log('Updating game with ID:', gameId);
+  res.redirect('/admin'); // Redirect back to the admin page or wherever is appropriate
+});
+
 app.listen(port, () => {
   console.info(`🚀 Server running at http://localhost:${port}/`);
   process.on('SIGINT', () => process.exit(1));
 });
-
-

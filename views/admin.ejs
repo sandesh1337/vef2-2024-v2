@@ -1,5 +1,76 @@
 <%- include('header') -%>
 
-admin!
+<h1>Admin Page - Manage Games</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Heima lið</th>
+        <th>Heima lið skor</th>
+        <th>Útilið</th>
+        <th>Útilið skor</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% for (const game of locals.games) { %>
+        <tr>
+            <td><%= game.home.name %></td>
+            <td><%= game.home.score %></td>
+            <td><%= game.away.name %></td>
+            <td><%= game.away.score %></td>
+            <td>
+                <button class="edit-btn" data-game-id="<%= game.id %>">Edit</button>
+                <button class="delete-btn" data-game-id="<%= game.id %>">Delete</button>
+            </td>
+        </tr>
+    <% } %>
+    </tbody>
+</table>
+
+<script>
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const editButtons = document.querySelectorAll('.edit-btn');
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+
+    editButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const gameId = this.getAttribute('data-game-id');
+        // Here you can redirect to an edit page or open a modal to edit the game
+        // For example: window.location.href = `/edit-game/${gameId}`;
+        console.log('Edit game with ID:', gameId);
+        // Implement the edit functionality here
+      });
+    });
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const gameId = this.getAttribute('data-game-id');
+        if (confirm('Are you sure you want to delete this game?')) {
+          fetch(`/delete-game/${gameId}`, {
+            method: 'DELETE',
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Remove the game row from the table
+                this.closest('tr').remove();
+              } else {
+                alert('Error deleting game');
+              }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+      });
+    });
+  });
+</script>
+
+
+<form method="post" action="/logout">
+    <button>LOGOUT</button>
+</form>
 
 <%- include('footer') -%>

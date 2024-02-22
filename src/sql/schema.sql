@@ -1,9 +1,9 @@
-CREATE TABLE IF NOT EXISTS public.teams (
+CREATE TABLE IF NOT EXISTS teams (
   id serial primary key,
   name varchar(64) not null unique
 );
 
-CREATE TABLE IF NOT EXISTS public.games (
+CREATE TABLE IF NOT EXISTS games (
   id serial primary key,
   date timestamp with time zone not null default current_timestamp,
   home INTEGER NOT NULL,
@@ -16,9 +16,11 @@ CREATE TABLE IF NOT EXISTS public.games (
 );
 
 
-CREATE TABLE IF NOT EXISTS public.users (
+CREATE TABLE IF NOT EXISTS users (
   id serial primary key,
   username varchar(64) not null unique,
-  password varchar(64) not null
+  password varchar(255) not null,
+  name varchar(64) not null,
+  admin boolean not null default false
 );
 

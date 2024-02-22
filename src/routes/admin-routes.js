@@ -1,30 +1,41 @@
 import express from 'express';
 import passport from 'passport';
-import { insertGame } from '../lib/db.js';
+import {getGames, insertGame} from '../lib/db.js';
 
 export const adminRouter = express.Router();
 
-async function indexRoute(req, res) {
+const games = await getGames();
+
+async function loginRoute(req, res) {
   return res.render('login', {
     title: 'Innskráning',
   });
 }
 
+async function indexRoute(req, res) {
+  return res.render('index', {
+    title: 'Forsíða',
+    time: new Date().toISOString(),
+  });
+}
+
+
+
 async function adminRoute(req, res) {
   const user = req.user ?? null;
   const loggedIn = req.isAuthenticated();
-
   return res.render('admin', {
+    loggedIn: req.isAuthenticated(),
     title: 'Admin upplýsingar, mjög leynilegt',
     user,
-    loggedIn,
+    games,
   });
 }
 
 // TODO færa á betri stað
 // Hjálpar middleware sem athugar hvort notandi sé innskráður og hleypir okkur
 // þá áfram, annars sendir á /login
-function ensureLoggedIn(req, res, next) {
+export function ensureLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
@@ -32,9 +43,12 @@ function ensureLoggedIn(req, res, next) {
   return res.redirect('/login');
 }
 
+
+
 function skraRoute(req, res, next) {
   return res.render('skra', {
     title: 'Skrá leik',
+
   });
 }
 
@@ -47,22 +61,32 @@ function skraRouteInsert(req, res, next) {
   res.redirect('/leikir');
 }
 
-adminRouter.get('/login', indexRoute);
+adminRouter.get('/login',loginRoute);
 adminRouter.get('/admin', ensureLoggedIn, adminRoute);
+
+
+adminRouter.post('/login', passport.authenticate('local', {
+  failureRedirect: '/login', // Make sure this redirects to the login page
+  failureMessage: 'Invalid username or password',
+}), (req, res) => {
+  res.redirect('/admin'); // Redirect to admin page upon successful login
+});
+
 adminRouter.get('/skra', skraRoute);
 adminRouter.post('/skra', skraRouteInsert);
 
+
+
+
+
 adminRouter.post(
   '/login',
-
-  // Þetta notar strat að ofan til að skrá notanda inn
   passport.authenticate('local', {
-    failureMessage: 'Notandanafn eða lykilorð vitlaust.',
-    failureRedirect: '/login',
+    failureRedirect: '/login', // Redirect back to the login page if there's an error
+    failureMessage: 'Invalid username or password', // Optional: Flash message for the login failure
   }),
-
-  // Ef við komumst hingað var notandi skráður inn, senda á /admin
   (req, res) => {
+    // Redirect to the admin page upon successful login
     res.redirect('/admin');
-  },
+  }
 );
