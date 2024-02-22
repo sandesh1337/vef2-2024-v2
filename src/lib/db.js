@@ -2,6 +2,7 @@ import pg from 'pg';
 import { readFile } from 'fs/promises';
 import { environment } from './environment.js';
 import { logger } from './logger.js';
+import res from "express/lib/response.js";
 
 const env = environment(process.env, logger);
 
@@ -129,3 +130,39 @@ export async function getUsers() {
   }
   return users;
 }
+export async function deleteGameById(gameId) {
+  const q = `
+    DELETE
+    FROM games
+    WHERE id = $1
+  `;
+
+  try {
+    const result = await query(q, [gameId]); // Assuming 'query' is your function to execute SQL commands
+    console.info(`Game with ID ${gameId} deleted successfully`);
+    return result; // You can return 'result' to indicate success or further inspect it
+  } catch (e) {
+    console.error(`Error deleting game with ID ${gameId}`, e);
+    throw e; // Rethrow the error to handle it in the route
+  }
+}
+
+
+
+export async function updateGameById(gameId, newHomeScore, newAwayScore) {
+  const q = `
+    UPDATE games
+    SET home_score = $2,
+        away_score = $3
+    WHERE id = $1
+  `;
+
+  try {
+    await query(q, [gameId, newHomeScore, newAwayScore]);
+    console.info(`Game with ID ${gameId} updated successfully`);
+  } catch (e) {
+    console.error(`Error updating game with ID ${gameId}`, e);
+  }
+}
+
+

@@ -1,6 +1,7 @@
 import express from 'express';
 import passport from 'passport';
-import {getGames, insertGame} from '../lib/db.js';
+import {deleteGameById, getGames, insertGame} from '../lib/db.js';
+import {logoutUser} from "../lib/users.js";
 
 export const adminRouter = express.Router();
 
@@ -11,14 +12,6 @@ async function loginRoute(req, res) {
     title: 'Innskráning',
   });
 }
-
-async function indexRoute(req, res) {
-  return res.render('index', {
-    title: 'Forsíða',
-    time: new Date().toISOString(),
-  });
-}
-
 
 
 async function adminRoute(req, res) {
@@ -56,8 +49,8 @@ function skraRouteInsert(req, res, next) {
   // TODO mjög hrátt allt saman, vantar validation!
   const { home_name, home_score, away_name, away_score } = req.body;
 
-  const result = insertGame(home_name, home_score, away_name, away_score);
-
+  //const result = insertGame(home_name, home_score, away_name, away_score);
+  insertGame(home_name, home_score, away_name, away_score);
   res.redirect('/leikir');
 }
 
@@ -90,3 +83,17 @@ adminRouter.post(
     res.redirect('/admin');
   }
 );
+
+// whenn i press the logout button it will redirect me to the home page
+adminRouter.post('/logout', async (req, res) => {
+  try {
+    await logoutUser(req);
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error logging out:', err);
+    res.redirect('/'); // Redirecting to home page even if logout fails
+  }
+});
+
+
+

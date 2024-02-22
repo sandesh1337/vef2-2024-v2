@@ -20,7 +20,6 @@
             <td><%= game.away.name %></td>
             <td><%= game.away.score %></td>
             <td>
-                <button class="edit-btn" data-game-id="<%= game.id %>">Edit</button>
                 <button class="delete-btn" data-game-id="<%= game.id %>">Delete</button>
             </td>
         </tr>
@@ -29,35 +28,22 @@
 </table>
 
 <script>
-
-
   document.addEventListener('DOMContentLoaded', () => {
-    const editButtons = document.querySelectorAll('.edit-btn');
     const deleteButtons = document.querySelectorAll('.delete-btn');
-
-    editButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const gameId = this.getAttribute('data-game-id');
-        // Here you can redirect to an edit page or open a modal to edit the game
-        // For example: window.location.href = `/edit-game/${gameId}`;
-        console.log('Edit game with ID:', gameId);
-        // Implement the edit functionality here
-      });
-    });
 
     deleteButtons.forEach(button => {
       button.addEventListener('click', function () {
         const gameId = this.getAttribute('data-game-id');
+
         if (confirm('Are you sure you want to delete this game?')) {
-          fetch(`/delete-game/${gameId}`, {
-            method: 'DELETE',
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
+          fetch(`/games/${gameId}`, {method: 'DELETE'})
+            .then(response => {
+              if (response.ok) {
+                console.log(`Deleting game with ID: ${gameId}`);
                 // Remove the game row from the table
                 this.closest('tr').remove();
               } else {
+                console.log(`Deleting game with ID: ${gameId}`);
                 alert('Error deleting game');
               }
             })
