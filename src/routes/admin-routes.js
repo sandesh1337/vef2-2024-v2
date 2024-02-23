@@ -2,22 +2,22 @@ import express from 'express';
 import passport from 'passport';
 import { body, validationResult } from 'express-validator';
 import { getGames, insertGame} from '../lib/db.js';
-import {logoutUser} from "../lib/users.js";
+import {logoutUser} from '../lib/users.js';
 
 
-const gameValidationRules = () => {
+const gameValidationRules = () =>{
   return [
     // Validate and sanitize the home_name
-    body('home_name').trim().escape().isLength({ min: 1 }).withMessage('Home team name is required.'),
+    body('home_name').trim().escape().isLength({ min: 1 }).withMessage('Home team name required.'),
 
     // Validate and sanitize the home_score
-    body('home_score').isInt({ min: 0 }).withMessage('Home score must be a non-negative integer.').toInt(),
+    body('home_score').isInt({ min: 0 }).withMessage('Home score must be non-negative integer.').toInt(),
 
     // Validate and sanitize the away_name
-    body('away_name').trim().escape().isLength({ min: 1 }).withMessage('Away team name is required.'),
+    body('away_name').trim().escape().isLength({ min: 1 }).withMessage('Away team name required.'),
 
     // Validate and sanitize the away_score
-    body('away_score').isInt({ min: 0 }).withMessage('Away score must be a non-negative integer.').toInt(),
+    body('away_score').isInt({ min: 0 }).withMessage('Away score must be non-negative integer.').toInt(),
   ];
 };
 
@@ -56,14 +56,14 @@ export function ensureLoggedIn(req, res, next) {
 
 
 
-function skraRoute(req, res, next) {
+function skraRoute(req, res) {
   return res.render('skra', {
     title: 'Skrá leik',
 
   });
 }
 
-function skraRouteInsert(req, res, next) {
+function skraRouteInsert(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     // There are validation errors. Handle them accordingly.
@@ -73,6 +73,7 @@ function skraRouteInsert(req, res, next) {
   const { home_name, home_score, away_name, away_score } = req.body;
   insertGame(home_name, home_score, away_name, away_score);
   res.redirect('/leikir');
+  return res.status(200).json({ success: true });
 }
 
 adminRouter.get('/login',loginRoute);

@@ -5,7 +5,7 @@ import {ensureLoggedIn} from './admin-routes.js';
 
 export const indexRouter = express.Router();
 
-const games = await getGames();
+
 async function indexRoute(req, res) {
   return res.render('index', {
     loggedIn: req.isAuthenticated(), // This should return true if the user is authenticated

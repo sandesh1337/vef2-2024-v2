@@ -41,7 +41,7 @@ export async function findByUsername(username) {
 
   if (found) {
 
-    //console.log("Found User:", found);   Log the entire user object
+    // console.log("Found User:", found);   Log the entire user object
 
     const { password, ...userWithoutPassword } = found;
 
