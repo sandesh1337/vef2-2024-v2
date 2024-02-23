@@ -3,19 +3,24 @@ import { readFile } from 'fs/promises';
 import { environment } from './environment.js';
 import { logger } from './logger.js';
 
-
-const env = environment(process.env, logger);
-
 const SCHEMA_FILE = './src/sql/schema.sql';
 const DROP_SCHEMA_FILE = './src/sql/drop.sql';
 
+
+
+const env = environment(process.env, logger);
+
 if (!env?.connectionString) {
+  logger.error('Connection string is missing in environment configuration');
   process.exit(-1);
 }
 
-const { connectionString } = env;
-
-const pool = new pg.Pool({ connectionString });
+const pool = new pg.Pool({
+  connectionString: env.connectionString,
+  ssl: {
+    rejectUnauthorized: false // Set to false for development or trusted server environments
+  }
+});
 
 pool.on('error', (err) => {
   console.error('Villa í tengingu við gagnagrunn, forrit hættir', err);
