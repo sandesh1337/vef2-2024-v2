@@ -11,7 +11,7 @@ import {adminRouter} from './routes/admin-routes.js';
 import {indexRouter} from './routes/index-routes.js';
 
 import {comparePasswords, findById, findByUsername, logoutUser} from './lib/users.js';
-import {deleteGameById, updateGameById} from "./lib/db.js";
+import {deleteGameById} from "./lib/db.js";
 
 
 const env = environment(process.env, logger);
@@ -82,6 +82,17 @@ passport.deserializeUser(async (id, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.delete('/games/:gameId', async (req, res) => {
+  const { gameId } = req.params;
+  try {
+    await deleteGameById(gameId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error(`Failed to delete game with ID ${gameId}:`, error);
+    res.status(500).json({ success: false, message: 'Error deleting game' });
+  }
+});
+
 // Logout route
 app.post('/logout', async (req, res) => {
   try {
@@ -93,6 +104,7 @@ app.post('/logout', async (req, res) => {
   }
 });
 
+
 // Set up your other routes and middleware here
 app.use('/', indexRouter);
 app.use('/', adminRouter);
@@ -100,17 +112,15 @@ app.use(express.static(join(path, '../public')));
 app.use(handler404);
 app.use(handlerError);
 
-
-app.delete('/games/:gameId', async (req, res) => {
-  const { gameId } = req.params;
-  try {
-    await deleteGameById(gameId);
-    res.json({ success: true }); // Send success response from here
-  } catch (error) {
-    console.error('Error deleting game:', error);
-    res.status(500).json({ success: false, message: 'Error deleting game' }); // Send error response from here
-  }
+app.use((req, res, next) => {
+  res.locals.loggedIn = req.isAuthenticated();
+  res.locals.user = req.user;
+  next();
 });
+
+
+
+
 
 
 

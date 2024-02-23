@@ -46,6 +46,7 @@ export async function query(q, values = []) {
 export async function getGames() {
   const q = `
     SELECT
+      games.id,
       date,
       home_team.name AS home_name,
       home_score,
@@ -53,9 +54,9 @@ export async function getGames() {
       away_score
     FROM
       games
-    LEFT JOIN
+        LEFT JOIN
       teams AS home_team ON home_team.id = games.home
-    LEFT JOIN
+        LEFT JOIN
       teams AS away_team ON away_team.id = games.away
   `;
 
@@ -65,6 +66,7 @@ export async function getGames() {
   if (result && (result.rows?.length ?? 0) > 0) {
     for (const row of result.rows) {
       const game = {
+        id: row.id,
         date: row.date,
         home: {
           name: row.home_name,
@@ -77,10 +79,10 @@ export async function getGames() {
       };
       games.push(game);
     }
-
   }
   return games;
 }
+
 
 export async function createSchema(schemaFile = SCHEMA_FILE) {
   const data = await readFile(schemaFile);
@@ -132,18 +134,17 @@ export async function getUsers() {
 }
 export async function deleteGameById(gameId) {
   const q = `
-    DELETE
-    FROM games
+    DELETE FROM games
     WHERE id = $1
   `;
 
   try {
-    const result = await query(q, [gameId]); // Assuming 'query' is your function to execute SQL commands
+    const result = await query(q, [gameId]);
     console.info(`Game with ID ${gameId} deleted successfully`);
-    return result; // You can return 'result' to indicate success or further inspect it
+    return result.rowCount;
   } catch (e) {
-    console.error(`Error deleting game with ID ${gameId}`, e);
-    throw e; // Rethrow the error to handle it in the route
+    console.error(`Error deleting game with ID ${gameId}:`, e.message);
+    throw e;
   }
 }
 

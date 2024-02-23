@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import {deleteGameById, getGames, insertGame} from '../lib/db.js';
+import { getGames, insertGame} from '../lib/db.js';
 import {logoutUser} from "../lib/users.js";
 
 export const adminRouter = express.Router();
