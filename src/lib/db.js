@@ -96,7 +96,7 @@ export async function dropSchema(dropFile = DROP_SCHEMA_FILE) {
   return query(data.toString('utf-8'));
 }
 
-export function insertGame(home_name, home_score, away_name, away_score) {
+export function insertGame(home, away, homeScore, awayScore){
   const q =
     'insert into games (home, away, home_score, away_score) values ($1, $2, $3, $4);';
 }

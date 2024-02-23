@@ -11,13 +11,16 @@ const gameValidationRules = () =>{
     body('home_name').trim().escape().isLength({ min: 1 }).withMessage('Home team name required.'),
 
     // Validate and sanitize the home_score
-    body('home_score').isInt({ min: 0 }).withMessage('Home score must be non-negative integer.').toInt(),
+    body('home_score').isInt({ min: 0 }).withMessage
+    ('Home score must be non-negative integer.').toInt(),
 
     // Validate and sanitize the away_name
-    body('away_name').trim().escape().isLength({ min: 1 }).withMessage('Away team name required.'),
+    body('away_name').trim().escape().isLength({ min: 1 }).withMessage
+    ('Away team name required.'),
 
     // Validate and sanitize the away_score
-    body('away_score').isInt({ min: 0 }).withMessage('Away score must be non-negative integer.').toInt(),
+    body('away_score').isInt({ min: 0 }).withMessage
+    ('Away score must be non-negative integer.').toInt(),
   ];
 };
 
