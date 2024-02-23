@@ -96,9 +96,16 @@ export async function dropSchema(dropFile = DROP_SCHEMA_FILE) {
   return query(data.toString('utf-8'));
 }
 
-export function insertGame(home, away, homeScore, awayScore){
-  const q =
-    'insert into games (home, away, home_score, away_score) values ($1, $2, $3, $4);';
+export async function insertGame(home, away, homeScore, awayScore) {
+  const q = 'INSERT INTO games (home, away, home_score, away_score) VALUES ($1, $2, $3, $4);';
+  try {
+    const result = await query(q, [home, away, homeScore, awayScore]);
+    console.info('Game inserted successfully');
+    return result;
+  } catch (e) {
+    console.error('Error inserting game:', e);
+    throw e;
+  }
 }
 
 export async function end() {

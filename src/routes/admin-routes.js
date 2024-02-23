@@ -37,7 +37,6 @@ async function loginRoute(req, res) {
 
 async function adminRoute(req, res) {
   const user = req.user ?? null;
-  const loggedIn = req.isAuthenticated();
   return res.render('admin', {
     loggedIn: req.isAuthenticated(),
     title: 'Admin upplýsingar, mjög leynilegt',
@@ -45,6 +44,8 @@ async function adminRoute(req, res) {
     games,
   });
 }
+
+
 
 // TODO færa á betri stað
 // Hjálpar middleware sem athugar hvort notandi sé innskráður og hleypir okkur
