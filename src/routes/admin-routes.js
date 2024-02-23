@@ -108,7 +108,7 @@ adminRouter.post(
   }
 );
 
-// whenn i press the logout button it will redirect me to the home page
+// whenn i press thedynamically update pages after deletion logout button it will redirect me to the home page
 adminRouter.post('/logout', async (req, res) => {
   try {
     await logoutUser(req);
