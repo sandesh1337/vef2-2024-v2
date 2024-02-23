@@ -1,7 +1,8 @@
 import express from 'express';
 import { getGames } from '../lib/db.js';
 import {calculateStandings} from '../lib/score.js';
-import {ensureLoggedIn} from './admin-routes.js';
+
+
 
 export const indexRouter = express.Router();
 
@@ -16,17 +17,6 @@ async function indexRoute(req, res) {
 }
 
 
-async function adminRoute(req, res) {
-  const games = await getGames();
-  return res.render('admin', {
-    loggedIn: req.isAuthenticated(), // This should return true if the user is authenticated
-    user: req.user,
-    title: 'Stjórnborð',
-    games,
-    time: new Date().toISOString(),
-  });
-
-}
 async function leikirRoute(req, res) {
   const games = await getGames();
 
@@ -58,4 +48,4 @@ indexRouter.get('/', indexRoute);
 indexRouter.get('/leikir', leikirRoute);
 
 indexRouter.get('/stada', stadaRoute);
-indexRouter.get('/admin', ensureLoggedIn, adminRoute);
+// indexRouter.get('/admin', ensureLoggedIn, adminRoute);

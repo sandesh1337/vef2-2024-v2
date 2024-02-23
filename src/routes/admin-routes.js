@@ -5,8 +5,7 @@ import { getGames, insertGame} from '../lib/db.js';
 import {logoutUser} from '../lib/users.js';
 
 
-const gameValidationRules = () =>{
-  return [
+const gameValidationRules = () =>[
     // Validate and sanitize the home_name
     body('home_name').trim().escape().isLength({ min: 1 }).withMessage('Home team name required.'),
 
@@ -22,7 +21,6 @@ const gameValidationRules = () =>{
     body('away_score').isInt({ min: 0 }).withMessage
     ('Away score must be non-negative integer.').toInt(),
   ];
-};
 
 export const adminRouter = express.Router();
 
