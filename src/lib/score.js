@@ -75,3 +75,5 @@ export function calculateStandings(games) {
   return standingsAsArray.sort((a, b) => b.points - a.points);
 }
 
+
+

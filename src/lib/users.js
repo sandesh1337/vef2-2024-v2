@@ -7,11 +7,7 @@
 
 
 import bcrypt from 'bcrypt';
-import {getUsers} from "./db.js";
-
-
-import logout from 'passport';
-
+import {getUsers} from './db.js';
 
 export async function logoutUser(req) {
   return new Promise((resolve, reject) => {
@@ -27,7 +23,6 @@ export async function logoutUser(req) {
 }
 
 const records = await getUsers();
-//console.log(records);
 
 export async function comparePasswords(password, hash) {
   try {
@@ -45,14 +40,15 @@ export async function findByUsername(username) {
   const found = records.find((u) => u.username === username);
 
   if (found) {
-    console.log("Found User:", found);  // Log the entire user object
+
+    //console.log("Found User:", found);   Log the entire user object
 
     const { password, ...userWithoutPassword } = found;
 
-    if (password) {
-      return { password, ...userWithoutPassword };
+    if (!password) {
+      console.error('User password is undefined');
     } else {
-      console.error("User password is undefined");
+      return { password, ...userWithoutPassword };
     }
   }
 

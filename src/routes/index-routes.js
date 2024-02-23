@@ -1,7 +1,7 @@
 import express from 'express';
 import { getGames } from '../lib/db.js';
-import {calculateStandings} from "../lib/score.js";
-import {ensureLoggedIn} from "./admin-routes.js";
+import {calculateStandings} from '../lib/score.js';
+import {ensureLoggedIn} from './admin-routes.js';
 
 export const indexRouter = express.Router();
 
@@ -40,6 +40,7 @@ async function leikirRoute(req, res) {
 }
 
 async function stadaRoute(req, res) {
+  const games = await getGames();
   const stada = calculateStandings(games);
 
   return res.render('stada', {
@@ -50,6 +51,8 @@ async function stadaRoute(req, res) {
     time: new Date().toISOString(),
   });
 }
+
+
 
 indexRouter.get('/', indexRoute);
 indexRouter.get('/leikir', leikirRoute);

@@ -2,7 +2,7 @@ import pg from 'pg';
 import { readFile } from 'fs/promises';
 import { environment } from './environment.js';
 import { logger } from './logger.js';
-import res from "express/lib/response.js";
+
 
 const env = environment(process.env, logger);
 
@@ -132,6 +132,7 @@ export async function getUsers() {
   }
   return users;
 }
+
 export async function deleteGameById(gameId) {
   const q = `
     DELETE FROM games
@@ -141,6 +142,7 @@ export async function deleteGameById(gameId) {
   try {
     const result = await query(q, [gameId]);
     console.info(`Game with ID ${gameId} deleted successfully`);
+
     return result.rowCount;
   } catch (e) {
     console.error(`Error deleting game with ID ${gameId}:`, e.message);

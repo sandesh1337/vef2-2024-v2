@@ -36,14 +36,15 @@
         const gameId = this.getAttribute('data-game-id');
 
         if (confirm('Are you sure you want to delete this game?')) {
-          fetch(`/games/${gameId}`, {method: 'DELETE'})
+          fetch(`/games/${gameId}`, { method: 'DELETE' })
             .then(response => {
               if (response.ok) {
                 console.log(`Deleting game with ID: ${gameId}`);
                 // Remove the game row from the table
                 this.closest('tr').remove();
+
               } else {
-                console.log(`Deleting game with ID: ${gameId}`);
+                console.error(`Error deleting game with ID: ${gameId}`);
                 alert('Error deleting game');
               }
             })
@@ -53,7 +54,6 @@
     });
   });
 </script>
-
 
 <form method="post" action="/logout">
     <button>LOGOUT</button>

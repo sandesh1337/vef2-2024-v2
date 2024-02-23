@@ -11,7 +11,9 @@ import {adminRouter} from './routes/admin-routes.js';
 import {indexRouter} from './routes/index-routes.js';
 
 import {comparePasswords, findById, findByUsername, logoutUser} from './lib/users.js';
-import {deleteGameById} from "./lib/db.js";
+import {deleteGameById, getGames} from "./lib/db.js";
+import {calculateStandings} from "./lib/score.js";
+
 
 
 const env = environment(process.env, logger);
@@ -90,6 +92,33 @@ app.delete('/games/:gameId', async (req, res) => {
   } catch (error) {
     console.error(`Failed to delete game with ID ${gameId}:`, error);
     res.status(500).json({ success: false, message: 'Error deleting game' });
+  }
+});
+
+
+app.post('/delete-game/:gameId', async (req, res) => {
+  try {
+    const gameId = req.params.gameId;
+    const deletionCount = await deleteGameById(gameId);
+
+    if (deletionCount > 0) {
+      console.info(`Game with ID ${gameId} deleted successfully`);
+
+      // Fetch updated games and calculate new standings
+      let games = await getGames();
+      let stada = calculateStandings(games);
+
+      // Convert standings data to HTML table rows
+      const tableRows = stada.map(team => `<tr><td>${team.name}</td><td>${team.points}</td></tr>`).join('');
+
+      // Send only the updated table rows as JSON response
+      res.json({ success: true, stada: tableRows });
+    } else {
+      res.json({ success: false, error: 'Game not found' });
+    }
+  } catch (e) {
+    console.error(`Error deleting game:`, e.message);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
 

@@ -1,7 +1,25 @@
 import express from 'express';
 import passport from 'passport';
+import { body, validationResult } from 'express-validator';
 import { getGames, insertGame} from '../lib/db.js';
 import {logoutUser} from "../lib/users.js";
+
+
+const gameValidationRules = () => {
+  return [
+    // Validate and sanitize the home_name
+    body('home_name').trim().escape().isLength({ min: 1 }).withMessage('Home team name is required.'),
+
+    // Validate and sanitize the home_score
+    body('home_score').isInt({ min: 0 }).withMessage('Home score must be a non-negative integer.').toInt(),
+
+    // Validate and sanitize the away_name
+    body('away_name').trim().escape().isLength({ min: 1 }).withMessage('Away team name is required.'),
+
+    // Validate and sanitize the away_score
+    body('away_score').isInt({ min: 0 }).withMessage('Away score must be a non-negative integer.').toInt(),
+  ];
+};
 
 export const adminRouter = express.Router();
 
@@ -46,10 +64,13 @@ function skraRoute(req, res, next) {
 }
 
 function skraRouteInsert(req, res, next) {
-  // TODO mjög hrátt allt saman, vantar validation!
-  const { home_name, home_score, away_name, away_score } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    // There are validation errors. Handle them accordingly.
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-  //const result = insertGame(home_name, home_score, away_name, away_score);
+  const { home_name, home_score, away_name, away_score } = req.body;
   insertGame(home_name, home_score, away_name, away_score);
   res.redirect('/leikir');
 }
@@ -66,7 +87,7 @@ adminRouter.post('/login', passport.authenticate('local', {
 });
 
 adminRouter.get('/skra', skraRoute);
-adminRouter.post('/skra', skraRouteInsert);
+adminRouter.post('/skra', gameValidationRules(), skraRouteInsert);
 
 
 
