@@ -48,6 +48,30 @@ export async function query(q, values = []) {
   }
 }
 
+export async function getTeams() {
+  const q = `
+    SELECT
+      id,
+      name
+    FROM
+      teams
+  `;
+
+  const result = await query(q);
+
+  const teams = [];
+  if (result && (result.rows?.length ?? 0) > 0) {
+    for (const row of result.rows) {
+      const team = {
+        id: row.id,
+        name: row.name,
+      };
+      teams.push(team);
+    }
+  }
+  return teams;
+}
+
 export async function getGames() {
   const q = `
     SELECT

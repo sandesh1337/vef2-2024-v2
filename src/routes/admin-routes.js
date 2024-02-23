@@ -1,8 +1,10 @@
-import express from 'express';
 import passport from 'passport';
 import { body, validationResult } from 'express-validator';
-import { getGames, insertGame} from '../lib/db.js';
+import express from 'express';
+import {getGames, getTeams, insertGame} from '../lib/db.js';
 import {logoutUser} from '../lib/users.js';
+
+
 
 
 const gameValidationRules = () =>[
@@ -33,12 +35,17 @@ async function loginRoute(req, res) {
 }
 
 
+
+
+
 async function adminRoute(req, res) {
   const user = req.user ?? null;
+  const teams = await getTeams();
   return res.render('admin', {
     loggedIn: req.isAuthenticated(),
     title: 'Admin upplýsingar, mjög leynilegt',
     user,
+    teams,
     games,
   });
 }
@@ -116,6 +123,29 @@ adminRouter.post('/logout', async (req, res) => {
   } catch (err) {
     console.error('Error logging out:', err);
     res.redirect('/'); // Redirecting to home page even if logout fails
+  }
+});
+
+adminRouter.post('/admin/add-game', ensureLoggedIn, async (req, res) => {
+  const { home, away } = req.body;
+  // Parse scores as integers
+  const home_score = parseInt(req.body.home_score, 10);
+  const away_score = parseInt(req.body.away_score, 10);
+
+  // Check for NaN values in scores
+  if (Number.isNaN(home_score) || Number.isNaN(away_score)) {
+    // Redirect back to the form with a message
+    return res.status(400).send('Invalid scores provided.');
+  }
+
+  try {
+    await insertGame(home, away, home_score, away_score);
+    // Redirect to the games list page or wherever appropriate
+    return res.redirect('/leikir'); // Added 'return' here
+  } catch (error) {
+    console.error('Error inserting game:', error);
+    // Handle the error appropriately
+    return res.status(500).send('An error occurred while adding the game.'); // Ensure 'return' is here for consistency
   }
 });
 
