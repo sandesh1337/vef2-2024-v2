@@ -81,7 +81,7 @@ function skraRouteInsert(req, res) {
 
   const { home_name, home_score, away_name, away_score } = req.body;
   insertGame(home_name, home_score, away_name, away_score);
-  res.redirect('/leikir');
+  res.redirect('/admin');
   return res.status(200).json({ success: true });
 }
 
