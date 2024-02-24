@@ -141,7 +141,7 @@ adminRouter.post('/admin/add-game', ensureLoggedIn, async (req, res) => {
   try {
     await insertGame(home, away, home_score, away_score);
     // Redirect to the games list page or wherever appropriate
-    return res.redirect('/leikir'); // Added 'return' here
+    return res.redirect('/admin'); // Added 'return' here
   } catch (error) {
     console.error('Error inserting game:', error);
     // Handle the error appropriately
